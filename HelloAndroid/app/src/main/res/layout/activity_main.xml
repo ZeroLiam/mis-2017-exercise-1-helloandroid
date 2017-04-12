@@ -19,7 +19,7 @@
         android:id="@+id/reqBtn"
         android:layout_width="150sp"
         android:layout_height="40sp"
-        android:text="Request Site"
+        android:text="Request URL"
         android:layout_marginTop="4dp"
         android:layout_below="@id/reqURL"
         android:layout_centerHorizontal="true"

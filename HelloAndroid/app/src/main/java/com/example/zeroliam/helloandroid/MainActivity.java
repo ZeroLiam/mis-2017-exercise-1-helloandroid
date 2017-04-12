@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
         geturl = (TextView) findViewById(R.id.reqURL);
         displayurl = (TextView) findViewById(R.id.displayHTML);
 
+        //Coding the URL - HTTPS requests here
+
        // btn.setOnClickListener(new View.OnClickListener() {
 //            try{
 //                URL theUrl = new URL(geturl.getText());
