@@ -5,13 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-
-import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
+import java.io.*;
+import java.net.*;
 
 public class MainActivity extends AppCompatActivity {
     //Layout elements here
@@ -29,15 +24,24 @@ public class MainActivity extends AppCompatActivity {
         geturl = (TextView) findViewById(R.id.reqURL);
         displayurl = (TextView) findViewById(R.id.displayHTML);
 
-        //Coding the URL - HTTPS requests here
+        //Setting the click listener
+        btn.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                //Setting the URL & HTTPS requests
 
-       // btn.setOnClickListener(new View.OnClickListener() {
-//            try{
-//                URL theUrl = new URL(geturl.getText());
-//            }catch(MalformedURLException exc){
-//
-//            }
+                try{
+                    URL myurl = new URL("hsjafg");
+                    URLConnection connection = myurl.openConnection();
 
-        //});
+                }catch(IOException e){
+                    e.printStackTrace();
+                    System.out.println("EXCEPTIONNN!!!");
+
+                }
+
+            }
+        });
+
+
     }
 }
