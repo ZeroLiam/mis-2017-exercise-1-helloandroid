@@ -7,7 +7,7 @@
     android:padding="10dp"
     tools:context="com.example.zeroliam.helloandroid.MainActivity">
 
-    <TextView
+    <EditText
         android:id="@+id/reqURL"
         android:layout_width="match_parent"
         android:layout_height="30sp"
