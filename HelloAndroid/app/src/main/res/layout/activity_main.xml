@@ -10,26 +10,30 @@
     <EditText
         android:id="@+id/reqURL"
         android:layout_width="match_parent"
-        android:layout_height="30sp"
-        android:inputType="textUri"
-        android:hint="Type your URL here"
-        android:textSize="18dp"/>
+        android:layout_height="40sp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="21dp"
+        android:hint="@string/type_your_url_here"
+        android:inputType="text"
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/reqBtn"
         android:layout_width="150sp"
         android:layout_height="40sp"
         android:text="Request URL"
-        android:layout_marginTop="4dp"
-        android:layout_below="@id/reqURL"
+        android:layout_marginTop="39dp"
+        android:layout_below="@+id/reqURL"
         android:layout_centerHorizontal="true"
-        />
+        tools:ignore="HardcodedText" />
     <TextView
         android:id="@+id/displayHTML"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="HTML To Display"
-        android:layout_marginTop="30dp"
-        android:layout_below="@id/reqBtn"/>
+        android:hint="@string/html_to_display"
+        android:layout_marginTop="42dp"
+        android:layout_below="@+id/reqBtn"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

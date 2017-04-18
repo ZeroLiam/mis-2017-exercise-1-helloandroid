@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HelloAndroid</string>
+    <string name="html_to_display">HTML To Display</string>
+    <string name="type_your_url_here">Type your URL here</string>
 </resources>
