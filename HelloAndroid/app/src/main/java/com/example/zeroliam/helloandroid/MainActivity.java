@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import java.io.*;
 import java.net.*;
+import java.security.Permission;
 import java.util.Scanner;
 import android.Manifest.permission;
 
@@ -62,19 +63,14 @@ public class MainActivity extends AppCompatActivity {
             URLConnection urlcon = theurl.openConnection();
             //pass the url connection to a httpurl connection
             HttpURLConnection httpcon = (HttpURLConnection) urlcon;
-            httpcon.getPermission();
+            Log.e("Permission? ", httpcon.getPermission().toString());
+
             //connect
             httpcon.connect();
             String responsemsg = httpcon.getResponseMessage();
-            Log.e("Response Message: ", responsemsg);
+            //
 
-            if(PermissionChecker.checkSelfPermission(this, Manifest.permission.INTERNET) == 0){
-                Log.e("PERMISSION: ", "Permission granted!");
-                Log.e("PERMISSION: ", permission.INTERNET);
-            }else{
-                Log.e("PERMISSION: ", "SOMETHING WRONG!!! :( ");
-                Log.e("PERMISSION: ", permission.INTERNET);
-            }
+            Log.e("Response Message: ", responsemsg);
             //get our data
             theStream = httpcon.getInputStream();
 
@@ -128,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                         receiveHTML += linereader.nextLine();
                     }
 
-                    Log.e("READING: ", receiveHTML);
+//                    Log.e("READING: ", receiveHTML);
                 }catch (Exception evt){
                     evt.printStackTrace();
                 }

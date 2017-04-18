@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.zeroliam.helloandroid">
+    <!-- Max SDK version: Marshmallow !-->
     <uses-permission    android:name="android.permission.INTERNET"
-                        android:maxSdkVersion="18"/>
+                        android:maxSdkVersion="23"/>
+    <!-- Max SDK version: Marshmallow !-->
     <uses-permission    android:name="android.permission.ACCESS_NETWORK_STATE"
-                        android:maxSdkVersion="18" />
+                        android:maxSdkVersion="23" />
 
     <application
         android:allowBackup="true"
