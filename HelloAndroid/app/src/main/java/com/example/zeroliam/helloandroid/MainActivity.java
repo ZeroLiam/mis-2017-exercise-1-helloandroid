@@ -4,6 +4,7 @@ import android.Manifest;
 import android.os.Bundle;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         btn = (Button) findViewById(R.id.reqBtn);
         geturl = (EditText) findViewById(R.id.reqURL);
         displayurl = (TextView) findViewById(R.id.displayHTML);
+
 
         //Setting the click listener
         btn.setOnClickListener(new View.OnClickListener(){
@@ -67,10 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
             //connect
             httpcon.connect();
-            String responsemsg = httpcon.getResponseMessage();
-            //
 
-            Log.e("Response Message: ", responsemsg);
+
             //get our data
             theStream = httpcon.getInputStream();
 
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
      * Parameters:  String, TextView source target
      * Returns:     void
      */
-    public void displayURL (String theurl, TextView displaypage){
+    public void displayURL(String theurl, final TextView displayurl){
         final String finalurl = theurl;
 
 
@@ -116,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
                 //Call the input stream from the URL
                 //(it needs to be called a final variable from within this inner class (IDE showed error)
                 geturl = connection(finalurl);
+//
+
                 //Display the url site
                 try{
                     //Read the lines from the input
@@ -125,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
                     }
 
 //                    Log.e("READING: ", receiveHTML);
+                    displayurl.setText(Html.fromHtml(receiveHTML));
+
                 }catch (Exception evt){
                     evt.printStackTrace();
                 }

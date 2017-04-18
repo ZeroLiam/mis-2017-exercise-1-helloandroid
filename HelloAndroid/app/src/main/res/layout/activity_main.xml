@@ -27,13 +27,22 @@
         android:layout_below="@+id/reqURL"
         android:layout_centerHorizontal="true"
         tools:ignore="HardcodedText" />
+    <ScrollView
+        android:id="@+id/Diescroller"
+        android:layout_below="@+id/reqBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:fillViewport="false">
+
     <TextView
         android:id="@+id/displayHTML"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/html_to_display"
-        android:layout_marginTop="42dp"
-        android:layout_below="@+id/reqBtn"
-        android:layout_alignParentStart="true" />
+        android:layout_marginTop="25dp"
+        android:layout_alignParentStart="true"
 
+        android:scrollbars = "vertical"/>
+    </ScrollView>
 </RelativeLayout>
