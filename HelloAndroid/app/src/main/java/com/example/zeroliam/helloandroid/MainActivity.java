@@ -1,6 +1,8 @@
 package com.example.zeroliam.helloandroid;
 
+import android.Manifest;
 import android.os.Bundle;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
+import android.Manifest.permission;
 
 public class MainActivity extends AppCompatActivity {
     //Layout elements here
@@ -59,17 +62,25 @@ public class MainActivity extends AppCompatActivity {
             URLConnection urlcon = theurl.openConnection();
             //pass the url connection to a httpurl connection
             HttpURLConnection httpcon = (HttpURLConnection) urlcon;
-
+            httpcon.getPermission();
             //connect
             httpcon.connect();
             String responsemsg = httpcon.getResponseMessage();
             Log.e("Response Message: ", responsemsg);
+
+            if(PermissionChecker.checkSelfPermission(this, Manifest.permission.INTERNET) == 0){
+                Log.e("PERMISSION: ", "Permission granted!");
+                Log.e("PERMISSION: ", permission.INTERNET);
+            }else{
+                Log.e("PERMISSION: ", "SOMETHING WRONG!!! :( ");
+                Log.e("PERMISSION: ", permission.INTERNET);
+            }
             //get our data
-//            theStream = httpcon.getInputStream();
+            theStream = httpcon.getInputStream();
 
         }catch (MalformedURLException mal){
             Log.e("HelloAndroid", "MALFORMED URL EXCEPTION");
-            mal.printStackTrace();
+            Log.e("MalformedURLException: ", mal.toString());
         }catch (IOException ioe){
             Log.e("HelloAndroid", "IO EXCEPTION");
             Log.e("IOException stack: ", ioe.toString());
@@ -96,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         //which basically will open a new thread instead of making a new process or interfering with
         //the main thread, and will let the connection to run in the background while we modify our
         //visual or in early cases, do a Log.e and see what's happening.
-        //This only happens in Honeycomb or higher (source: https://developer.android.com/reference/android/os/NetworkOnMainThreadException.html#NetworkOnMainThreadException() );
+        //This only happens in Honeycomb or higher versions (source: https://developer.android.com/reference/android/os/NetworkOnMainThreadException.html#NetworkOnMainThreadException );
 
         (new Thread(){
             public void run(){
@@ -107,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 String receiveHTML = "";
 
                 //Call the input stream from the URL
-                //(it needs to be called final from within this inner class (IDE showed error)
+                //(it needs to be called a final variable from within this inner class (IDE showed error)
                 geturl = connection(finalurl);
                 //Display the url site
                 try{
