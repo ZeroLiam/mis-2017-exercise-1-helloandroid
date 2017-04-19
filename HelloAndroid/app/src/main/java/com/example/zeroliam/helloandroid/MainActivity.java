@@ -20,7 +20,8 @@ public class MainActivity extends AppCompatActivity {
     //Layout elements here
     Button btn;
     EditText geturl;
-    TextView displayurl;
+    TextView displayurl, showResponse;
+    String getTheResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +32,14 @@ public class MainActivity extends AppCompatActivity {
         btn = (Button) findViewById(R.id.reqBtn);
         geturl = (EditText) findViewById(R.id.reqURL);
         displayurl = (TextView) findViewById(R.id.displayHTML);
+        showResponse = (TextView) findViewById(R.id.showResponseCode);
 
 
         //Setting the click listener
         btn.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
                 //Call the site and display it
-                displayURL(geturl.getText().toString(), displayurl);
+                displayURL(geturl.getText().toString(), displayurl, showResponse);
             }
         });
     }
@@ -70,6 +72,25 @@ public class MainActivity extends AppCompatActivity {
             //connect
             httpcon.connect();
 
+            //get response message
+            getTheResponse = "Server response: " + httpcon.getResponseCode() + " " + httpcon.getResponseMessage();
+
+            //Change TextView color depending on the response
+            
+
+            //Pass the result to the thread for the UI on the Main activity
+            //instead of trying to pass it to the other thread.
+            //(source: Second answer from this stackOverflow thread http://stackoverflow.com/questions/5185015/updating-android-ui-using-threads)
+            MainActivity.super.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(getTheResponse != null){
+                        showResponse.setText(getTheResponse);
+                    }else{
+                        showResponse.setText("getTheResponse is null");
+                    }
+                }
+            });
 
             //get our data
             theStream = httpcon.getInputStream();
@@ -94,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
      * Parameters:  String, TextView source target
      * Returns:     void
      */
-    public void displayURL(String theurl, final TextView displayurl){
+    public void displayURL(String theurl, final TextView displayurl, final TextView showResponse){
         final String finalurl = theurl;
 
 
