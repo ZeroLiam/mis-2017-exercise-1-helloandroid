@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         //Setting the click listener
         btn.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-                //Call the site and display it
+                //Get the url from the TextView, pass the displayurl WebView, and the showResponse TextView for the server responses
                 displayURL(geturl.getText().toString(), displayurl, showResponse);
             }
         });
@@ -57,21 +57,28 @@ public class MainActivity extends AppCompatActivity {
     private InputStream connection (String urls){
         //Initialize the stream that will return the html object
         InputStream theStream = null;
+        //Elements for the Toasts
         Context context = getApplicationContext();
         CharSequence text ="";
         int duration = Toast.LENGTH_LONG;
+        //An int to color code the response from the server
         final int colornum;
 
-//        //Before we start bothering, let's see if the device is connected
-//        ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
-//
-//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-//        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-//
-//        if(!isConnected){
-//            return theStream;
-//        }
+        //Before we start bothering, let's see if the device is connected, and if not then return the null Stream
+        //(source: Android API https://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
+        ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+        //If it's not connected return the empty Stream anyway
+        if(!isConnected){
+            Log.e("Connection: ", "NOT CONNECTED!");
+            MainActivity.super.runOnUiThread(new workingToast(context, "NOT CONNECTED! Check your WiFi or Data Connection", duration));
+            return theStream;
+        }
+
+        //If it's connected, then let's get to work! :D
         //Setting the URL & HTTPS requests
         try{
             Log.e("HelloAndroid", "ON THE TRY SIDE");
@@ -82,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             URLConnection urlcon = theurl.openConnection();
             //pass the url connection to a httpurl connection
             HttpURLConnection httpcon = (HttpURLConnection) urlcon;
+            //Check if our permission is ok
             Log.i("Permission? ", httpcon.getPermission().toString());
 
             //connect
@@ -126,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             theStream = httpcon.getInputStream();
 
         }catch (MalformedURLException mal){
+            //In case of a wrong URL input
             Log.e("HelloAndroid", "MALFORMED URL EXCEPTION");
             Log.e("MalformedURLException: ", mal.toString());
 
@@ -133,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.super.runOnUiThread(new workingToast(context, text, duration));
 
         }catch (IOException ioe){
+            //In case our Stream is null (due to connectivity issues, bad URL, etc
             Log.e("HelloAndroid", "IO EXCEPTION");
             Log.e("IOException stack: ", ioe.toString());
 
@@ -153,20 +163,22 @@ public class MainActivity extends AppCompatActivity {
      * Returns:     void
      */
     public void displayURL(String theurl, final WebView displayurl, final TextView showResponse){
+        //Our url from the top TextView in our layout
         final String finalurl = theurl;
+        //Variables for the Toast
         final Context context = getApplicationContext();
         final int duration = Toast.LENGTH_LONG;
 
-
+        //HEY!!! We found an error, then I (Lis) debugged it -- Later I read that an AsyncTask could've done it easier but here we are #oops
         //To avoid the fatal error network on main thread, we need to make a new thread
-        //(source: Defining and starting a thread - https://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html)
+        //(source: ORACLE API - Defining and starting a thread - https://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html)
         //which basically will open a new thread instead of making a new process or interfering with
         //the main thread, and will let the connection to run in the background while we modify our
         //visual or in early cases, do a Log.e and see what's happening.
-        //This only happens in Honeycomb or higher versions (source: https://developer.android.com/reference/android/os/NetworkOnMainThreadException.html#NetworkOnMainThreadException );
+        //This only happens in Honeycomb or higher versions (source: ANDROID API - https://developer.android.com/reference/android/os/NetworkOnMainThreadException.html#NetworkOnMainThreadException );
 
         (new Thread(){
-            public void run(){
+            public void run() {
                 //Initialize the local InputStream and the Scanner to read the lines from the stream
                 InputStream geturl = null;
                 Scanner linereader;
@@ -177,39 +189,42 @@ public class MainActivity extends AppCompatActivity {
                 //(it needs to be called a final variable from within this inner class (IDE showed error)
                 geturl = connection(finalurl);
 
-                //Display the url site
-                try{
-                    //Read the lines from the input
-                    linereader = new Scanner(geturl);
-                    while(linereader.hasNext()){
-                        receiveHTML += linereader.nextLine();
+                //If our stream is fine, then let's get our HTML and more! :D
+                if (geturl != null) {
+                    //Display the url site
+                    try {
+                        //Read the lines from the input
+                        linereader = new Scanner(geturl);
+                        while (linereader.hasNext()) {
+                            receiveHTML += linereader.nextLine();
+                        }
+
+                        //Pass the result to the thread for the UI on the Main activity
+                        //instead of trying to pass it to the other thread:
+                        //For the WebView
+                        MainActivity.super.runOnUiThread(new workingWebView(displayurl, receiveHTML));
+
+                        //For the response TextView
+                        //Second parameter is zero, meaning that the default text color is black (see the Runnable definition I (Lis) made for workingTextView)
+                        MainActivity.super.runOnUiThread(new workingTextView(showResponse, 0));
+
+                    } catch (Exception evt) {
+                        //Something wrong? Could be the Stream, just log it and send a Toast
+                        Log.e("Stream not good! ", evt.toString());
+                        CharSequence text = "The source (Stream) is not good. Check your url or connectivity and please try again :)";
+
+                        MainActivity.super.runOnUiThread(new workingToast(context, text, duration));
                     }
-
-                    //Pass the result to the thread for the UI on the Main activity
-                    //instead of trying to pass it to the other thread.
-
-                    //For the WebView
-                    MainActivity.super.runOnUiThread(new workingWebView(displayurl, receiveHTML));
-
-                    //For the response TextView
-                    //Second parameter is zero, meaning that the default text color is black (see Runnable definition for workingTextView)
-                    MainActivity.super.runOnUiThread(new workingTextView(showResponse, 0));
-
-                }catch (Exception evt){
-                    Log.e("Stream no bueno! ", evt.toString());
-                    CharSequence text = "The source stream is not good, the host or URL might be wrong. Please try again :)";
-
-                    MainActivity.super.runOnUiThread(new workingToast(context, text, duration));
                 }
             }
-        }).start();
+        }).start();//Start our new Thread! :D
 
     }
 
-    //RUNNABLE IS A INTERFACE!! YAAY!
+    //RUNNABLE IS A INTERFACE!! YAAY! :'D
     //We can make our own version of Runnable and then call it whenever we need it, for
     //whatever component we want to update in the UI.
-    //source: https://developer.android.com/reference/java/lang/Runnable.html
+    //source: Idea from ANDROID API - https://developer.android.com/reference/java/lang/Runnable.html
 
     /**
      * Class name: workingTextView
@@ -232,9 +247,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if(getTheResponse != null){
-                showResponse.setText(getTheResponse);
+                txtView.setTextColor(colornum);
+                txtView.setText(getTheResponse);
             }else{
-                showResponse.setText("No response. Try again with another URL.");
+                txtView.setText("No response. Try again with another URL.");
             }
         }
     }
@@ -248,17 +264,17 @@ public class MainActivity extends AppCompatActivity {
     public class workingWebView implements Runnable {
         //Make global vars for this class
         WebView webView;
-        String htmlStr;
+        String responseStr;
 
         //Make the constructor
-        workingWebView(WebView newWebView, String newHtmlStr){
+        workingWebView(WebView newWebView, String newResponseStr){
             webView = newWebView;
-            htmlStr = newHtmlStr;
+            responseStr = newResponseStr;
         }
 
         @Override
         public void run() {
-            webView.loadData(htmlStr, "text/html", null);
+            webView.loadDataWithBaseURL(null, responseStr,"text/html", "UTF-8", null);
         }
     }
 
@@ -283,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void run() {
+            //Make the Toast with the values received as parameters
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
