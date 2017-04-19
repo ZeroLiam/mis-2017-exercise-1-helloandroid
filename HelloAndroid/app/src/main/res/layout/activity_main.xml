@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
+    android:background="@mipmap/build1"
     tools:context="com.example.zeroliam.helloandroid.MainActivity">
 
     <EditText
@@ -16,7 +17,8 @@
         android:layout_marginTop="21dp"
         android:hint="@string/type_your_url_here"
         android:inputType="text"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:background="#FFFFFF"/>
 
     <Button
         android:id="@+id/reqBtn"
@@ -33,9 +35,11 @@
         android:layout_below="@id/reqBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
         android:textSize="18dp"
         android:textAlignment="center"
         android:hint="Server Response holder"
+        android:background="#FFFFFF"
         android:layout_marginTop="8dp"
         android:layout_alignParentStart="true"/>
 
@@ -46,6 +50,7 @@
         android:layout_marginTop="14dp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:background="#99FFFFFF"
         android:scrollbars="vertical"
         android:fillViewport="false">
 

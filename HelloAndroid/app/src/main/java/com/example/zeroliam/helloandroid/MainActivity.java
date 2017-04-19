@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         CharSequence text ="";
         int duration = Toast.LENGTH_LONG;
+        final int colornum;
 
 //        //Before we start bothering, let's see if the device is connected
 //        ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -91,6 +92,46 @@ public class MainActivity extends AppCompatActivity {
 
             //get response message
             getTheResponse = "Server response: " + httpcon.getResponseCode() + " " + httpcon.getResponseMessage();
+
+            if(httpcon.getResponseCode()<200)
+            {
+                colornum=0xFF65F442;
+            }
+            else if(httpcon.getResponseCode()>=200 && httpcon.getResponseCode()<300)
+            {
+                colornum=0xFF0E0B72;
+            }
+            else if(httpcon.getResponseCode()>=300 && httpcon.getResponseCode()<400)
+            {
+                colornum=0xFFC741F4;
+            }
+            else if(httpcon.getResponseCode()>=400 && httpcon.getResponseCode()<500)
+            {
+                colornum=0xFFB70929;
+            }
+            else if(httpcon.getResponseCode()>=500 && httpcon.getResponseCode()<600)
+            {
+                colornum=0xFF681323;
+            }
+            else
+            {
+                colornum=0xFF899185;
+            }
+            //Pass the result to the thread for the UI on the Main activity
+            //instead of trying to pass it to the other thread.
+            //(source: Second answer from this stackOverflow thread http://stackoverflow.com/questions/5185015/updating-android-ui-using-threads)
+            MainActivity.super.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    if(getTheResponse != null){
+                        showResponse.setTextColor(colornum);
+                        showResponse.setText(getTheResponse);
+                    }else{
+                        showResponse.setText("HTTP invalid");
+                    }
+                }
+            });
 
             //get our data
             theStream = httpcon.getInputStream();
