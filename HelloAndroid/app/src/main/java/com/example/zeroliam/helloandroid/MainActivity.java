@@ -18,6 +18,7 @@ import java.net.*;
 import java.security.Permission;
 import java.util.Scanner;
 import android.Manifest.permission;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     //Layout elements here
@@ -59,16 +60,19 @@ public class MainActivity extends AppCompatActivity {
     private InputStream connection (String urls){
         //Initialize the stream that will return the html object
         InputStream theStream = null;
+        Context context = getApplicationContext();
+        CharSequence text ="";
+        int duration = Toast.LENGTH_LONG;
 
-        //Before we start bothering, let's see if the device is connected
-        ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
-        if(!isConnected){
-            return theStream;
-        }
+//        //Before we start bothering, let's see if the device is connected
+//        ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+//
+//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+//        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+//
+//        if(!isConnected){
+//            return theStream;
+//        }
 
         //Setting the URL & HTTPS requests
         try{
@@ -88,26 +92,6 @@ public class MainActivity extends AppCompatActivity {
             //get response message
             getTheResponse = "Server response: " + httpcon.getResponseCode() + " " + httpcon.getResponseMessage();
 
-            //Pass the result to the thread for the UI on the Main activity
-            //instead of trying to pass it to the other thread.
-            //(source: Second answer from this stackOverflow thread http://stackoverflow.com/questions/5185015/updating-android-ui-using-threads)
-            MainActivity.super.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    //Change TextView color depending on the response
-                    //showResponse
-                    
-
-                    if(getTheResponse != null){
-                        showResponse.setText(getTheResponse);
-                    }else{
-                        showResponse.setText("getTheResponse is null");
-                    }
-                }
-            });
-
-
             //get our data
             theStream = httpcon.getInputStream();
 
@@ -115,12 +99,15 @@ public class MainActivity extends AppCompatActivity {
             Log.e("HelloAndroid", "MALFORMED URL EXCEPTION");
             Log.e("MalformedURLException: ", mal.toString());
 
-            getTheResponse = "Wait, your URL is wrong. Try again.";
+            text = "That URL is not good, try again :)";
+            MainActivity.super.runOnUiThread(new workingToast(context, text, duration));
+
         }catch (IOException ioe){
             Log.e("HelloAndroid", "IO EXCEPTION");
             Log.e("IOException stack: ", ioe.toString());
 
-            getTheResponse = "Wait, this Input/Output is wrong. Try again";
+            text = "Hey!! That host seems wrong, try again :)";
+            MainActivity.super.runOnUiThread(new workingToast(context, text, duration));
         }
 
         return theStream;
@@ -137,6 +124,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void displayURL(String theurl, final TextView displayurl, final TextView showResponse){
         final String finalurl = theurl;
+        final Context context = getApplicationContext();
+        final int duration = Toast.LENGTH_LONG;
+
 
         //To avoid the fatal error network on main thread, we need to make a new thread
         //(source: Defining and starting a thread - https://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html)
@@ -169,12 +159,61 @@ public class MainActivity extends AppCompatActivity {
 //                    Log.e("READING: ", receiveHTML);
                     displayurl.setText(Html.fromHtml(receiveHTML));
 
+                    //Pass the result to the thread for the UI on the Main activity
+                    //instead of trying to pass it to the other thread.
+                    MainActivity.super.runOnUiThread(new workingTextView(showResponse));
+
                 }catch (Exception evt){
                    Log.e("Stream no bueno! ", evt.toString());
+                    CharSequence text = "The source stream is not good, the host or URL might be wrong. Please try again :)";
+
+                    MainActivity.super.runOnUiThread(new workingToast(context, text, duration));
                 }
             }
         }).start();
 
+    }
+
+    //RUNNABLE IS A INTERFACE!! YAAY!
+    //source: https://developer.android.com/reference/java/lang/Runnable.html
+
+    public class workingTextView implements Runnable {
+        //Make global vars for this class
+        TextView txtView;
+
+        //Make the constructor
+        workingTextView(TextView newTxtView){
+            txtView = newTxtView;
+        }
+
+        @Override
+        public void run() {
+            if(getTheResponse != null){
+                showResponse.setText(getTheResponse);
+            }else{
+                showResponse.setText("No response. Try again with another URL.");
+            }
+        }
+    }
+
+    public class workingToast implements Runnable {
+        //Make the global vars for this class
+        Context context;
+        CharSequence text;
+        int duration;
+
+        //Make the constructor
+        workingToast(Context newContext, CharSequence newText, int newDuration){
+            context = newContext;
+            text = newText;
+            duration = newDuration;
+        }
+
+        @Override
+        public void run() {
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
     }
 
 }
