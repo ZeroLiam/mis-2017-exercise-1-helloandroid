@@ -1,6 +1,9 @@
 package com.example.zeroliam.helloandroid;
 
 import android.Manifest;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
@@ -57,6 +60,16 @@ public class MainActivity extends AppCompatActivity {
         //Initialize the stream that will return the html object
         InputStream theStream = null;
 
+        //Before we start bothering, let's see if the device is connected
+        ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+        if(!isConnected){
+            return theStream;
+        }
+
         //Setting the URL & HTTPS requests
         try{
             Log.e("HelloAndroid", "ON THE TRY SIDE");
@@ -75,15 +88,17 @@ public class MainActivity extends AppCompatActivity {
             //get response message
             getTheResponse = "Server response: " + httpcon.getResponseCode() + " " + httpcon.getResponseMessage();
 
-            //Change TextView color depending on the response
-            
-
             //Pass the result to the thread for the UI on the Main activity
             //instead of trying to pass it to the other thread.
             //(source: Second answer from this stackOverflow thread http://stackoverflow.com/questions/5185015/updating-android-ui-using-threads)
             MainActivity.super.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+
+                    //Change TextView color depending on the response
+                    //showResponse
+                    
+
                     if(getTheResponse != null){
                         showResponse.setText(getTheResponse);
                     }else{
@@ -92,15 +107,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+
             //get our data
             theStream = httpcon.getInputStream();
 
         }catch (MalformedURLException mal){
             Log.e("HelloAndroid", "MALFORMED URL EXCEPTION");
             Log.e("MalformedURLException: ", mal.toString());
+
+            getTheResponse = "Wait, your URL is wrong. Try again.";
         }catch (IOException ioe){
             Log.e("HelloAndroid", "IO EXCEPTION");
             Log.e("IOException stack: ", ioe.toString());
+
+            getTheResponse = "Wait, this Input/Output is wrong. Try again";
         }
 
         return theStream;
@@ -117,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public void displayURL(String theurl, final TextView displayurl, final TextView showResponse){
         final String finalurl = theurl;
-
 
         //To avoid the fatal error network on main thread, we need to make a new thread
         //(source: Defining and starting a thread - https://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html)
@@ -151,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                     displayurl.setText(Html.fromHtml(receiveHTML));
 
                 }catch (Exception evt){
-                    evt.printStackTrace();
+                   Log.e("Stream no bueno! ", evt.toString());
                 }
             }
         }).start();
